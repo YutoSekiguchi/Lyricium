@@ -132,8 +132,9 @@ export default function GenerateMain() {
         lyrics,
         image: imageUrl,
         url: audioPath, // ここにアップロードした音声ファイルのパス/URL
-        user_id: userId || 0,
+        user_id: userId!== null? userId : 1,
       });
+      
 
       toast("アップロード完了！", {
         description: "楽曲がデータベースに保存されました。",
