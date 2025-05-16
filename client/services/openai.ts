@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { uploadImage } from "./upload";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -28,7 +29,7 @@ export const generatePhoto = async ({
         prompt,
         n: 1,
         size: "1024x1024",
-        response_format: "b64_json",
+        response_format: "url",
       }),
     });
 
@@ -37,9 +38,14 @@ export const generatePhoto = async ({
     }
 
     const data = await res.json();
-    const b64 = data.data?.[0]?.b64_json;
-    if (!b64) throw new Error("No image data returned");
-    return `data:image/png;base64,${b64}`;
+    const imageUrl = data.data?.[0]?.url;
+    if (!imageUrl) throw new Error("No image URL returned");
+
+    const imageResponse = await fetch(imageUrl);
+    const imageBlob = await imageResponse.blob();
+    const imageFile = new File([imageBlob], "generated.png", { type: "image/png" });
+    const uploadedUrl = await uploadImage(imageFile);
+    return uploadedUrl;
   } catch (err) {
     console.error("Error generating jacket image:", err);
     throw err;
