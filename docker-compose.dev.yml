@@ -28,7 +28,7 @@ services:
   frontend:
     container_name: musicium--frontend
     build:
-      context: ./frontend
+      context: ./client
       dockerfile: Dockerfile
     env_file: ./.env
     ports:
