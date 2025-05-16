@@ -1,0 +1,58 @@
+version: '3'
+services:
+  mysql:
+    container_name: musicium--mysql
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    env_file: ./.env
+    volumes:
+      - ./db/data:/var/lib/mysql
+    ports:
+      - "7872:3306"
+    networks:
+      - musicium-network
+
+  phpmyadmin:
+    container_name: musicium--phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 7873:80
+    env_file: ./.env
+    depends_on:
+      - mysql
+    networks:
+      - musicium-network
+
+  frontend:
+    container_name: musicium--frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file: ./.env
+    ports:
+      - 7870:3000
+    networks:
+      - musicium-network
+  
+  backend:
+    container_name: musicium--backend
+    build:
+      context: ./backend
+      dockerfile: prod.Dockerfile
+    env_file: ./.env
+    volumes:
+      - ./backend/:/app
+    ports:
+      - 7871:8000
+    depends_on:
+      - mysql
+    networks:
+      - musicium-network
+
+volumes:
+  mysql:
+
+networks:
+  musicium-network:
+    driver: bridge
